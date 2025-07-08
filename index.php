@@ -1,3 +1,8 @@
+<?php
+$pdo = new PDO('mysql:host=mysql31.conoha.ne.jp;dbname=k75zo_9balls;charset=utf8mb4', 'k75zo_9balls', 'nPxjk13@j');
+$shop_list = $pdo->query("SELECT name FROM shop_master ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
+$user_list = $pdo->query("SELECT name FROM user_master ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
+?>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -9,6 +14,7 @@
 </head>
 <body class="bg-light">
   <div class="container py-5">
+    <h1 class="text-center mb-4">9Balls_V3</h1>
 
     <div class="card shadow">
       <div class="card-header bg-primary text-white">日別まとめ記録（V1形式）</div>
@@ -19,19 +25,43 @@
             <input type="date" name="date" id="date" class="form-control" required>
           </div>
 
+          <div class="mb-3">
+            <label class="form-label">ルール</label>
+            <select name="rule" id="rule" class="form-select" required>
+              <option value="A">ルールA（奇数のみ）</option>
+              <option value="B">ルールB（全ボール）</option>
+              <option value="custom">カスタム（準備中）</option>
+            </select>
+          </div>
+
           <div class="text-end mb-3">
             <button type="button" class="btn btn-outline-secondary" onclick="fetchPocketSummary()">pocketmodeから取得</button>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">店舗名</label>
+            <input type="text" name="shop" class="form-control" list="shop_list" required>
+            <datalist id="shop_list">
+              <?php foreach ($shop_list as $s): ?>
+                <option value="<?= htmlspecialchars($s) ?>">
+              <?php endforeach; ?>
+            </datalist>
           </div>
 
           <div class="row">
             <div class="col-md-6">
               <label class="form-label">プレイヤー1名</label>
-              <input type="text" name="player1" class="form-control" required>
+              <input type="text" name="player1" class="form-control" list="user_list" required>
             </div>
             <div class="col-md-6">
               <label class="form-label">プレイヤー2名</label>
-              <input type="text" name="player2" class="form-control" required>
+              <input type="text" name="player2" class="form-control" list="user_list" required>
             </div>
+            <datalist id="user_list">
+              <?php foreach ($user_list as $u): ?>
+                <option value="<?= htmlspecialchars($u) ?>">
+              <?php endforeach; ?>
+            </datalist>
           </div>
 
           <div class="row mt-3">
@@ -73,6 +103,7 @@
 
         <div class="text-center mt-4">
           <a href="pocketmode/index.html" class="btn btn-success">▶ Pocketmode（V2）に進む</a>
+          <a href="settings.php" class="btn btn-outline-dark ms-2">⚙ 設定画面へ</a>
         </div>
       </div>
     </div>
@@ -81,12 +112,13 @@
   <script>
     function fetchPocketSummary() {
       const date = document.getElementById("date").value;
-      if (!date) {
-        alert("日付を選択してください");
+      const rule = document.getElementById("rule").value;
+      if (!date || !rule) {
+        alert("日付とルールを選択してください");
         return;
       }
 
-      fetch("fetch_summary.php?date=" + encodeURIComponent(date))
+      fetch("fetch_summary.php?date=" + encodeURIComponent(date) + "&rule=" + encodeURIComponent(rule))
         .then(res => res.json())
         .then(data => {
           if (data.status === "success") {

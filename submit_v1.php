@@ -12,23 +12,25 @@ try {
     ]);
 
     $stmt = $pdo->prepare("
-        INSERT INTO match_summary (
-            date, player1, player2, total_score1, total_score2,
-            total_ace1, total_ace2, total_games, comment
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO match_summary (
+        date, player1, player2, total_score1, total_score2,
+        total_ace1, total_ace2, total_games, comment, rule
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
     $stmt->execute([
-        $_POST['date'],
-        $_POST['player1'],
-        $_POST['player2'],
-        intval($_POST['total_score1']),
-        intval($_POST['total_score2']),
-        intval($_POST['total_ace1']),
-        intval($_POST['total_ace2']),
-        intval($_POST['total_games']),
-        $_POST['comment'] ?? ''
+    $_POST['date'],
+    $_POST['player1'],
+    $_POST['player2'],
+    intval($_POST['total_score1']),
+    intval($_POST['total_score2']),
+    intval($_POST['total_ace1']),
+    intval($_POST['total_ace2']),
+    intval($_POST['total_games']),
+    $_POST['comment'] ?? '',
+    $_POST['rule'] ?? 'unknown'
     ]);
+
 
     header("Location: index.php?success=1");
     exit;

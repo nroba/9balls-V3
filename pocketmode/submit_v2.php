@@ -3,34 +3,33 @@
 
 header('Content-Type: application/json');
 
-// JSONデータを受け取る
+// JSONデータ受け取り
 $raw = file_get_contents("php://input");
 $data = json_decode($raw, true);
 
-// 安全確認
-if (!isset($data['score1'], $data['score2'], $data['balls'])) {
-    echo json_encode(['status' => 'error', 'message' => '不正な入力です']);
+// 必須項目チェック
+if (!isset($data['score1'], $data['score2'], $data['balls'], $data['rule'], $data['shop'], $data['player1'], $data['player2'])) {
+    echo json_encode(['status' => 'error', 'message' => '必要な情報が不足しています']);
     exit;
 }
 
-// DB接続情報
-$dsn = 'mysql:host=mysql31.conoha.ne.jp;dbname=k75zo_9balls;charset=utf8mb4';
-$user = 'k75zo_9balls';
-$pass = 'nPxjk13@j';
+// 文字数制限チェック
+$rule = mb_substr($data['rule'], 0, 10);
+$shop = mb_substr($data['shop'], 0, 100);
+$player1 = mb_substr($data['player1'], 0, 100);
+$player2 = mb_substr($data['player2'], 0, 100);
 
 try {
-    $pdo = new PDO($dsn, $user, $pass, [
+    $pdo = new PDO('mysql:host=mysql31.conoha.ne.jp;dbname=k75zo_9balls;charset=utf8mb4', 'k75zo_9balls', 'nPxjk13@j', [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
     ]);
 
-    // 仮のプレイヤー名（今後拡張可能）
-    $player1 = 'Player 1';
-    $player2 = 'Player 2';
-
-    // INSERT文実行
     $stmt = $pdo->prepare("
-        INSERT INTO match_detail (date, player1, player2, score1, score2, balls_json)
-        VALUES (CURDATE(), ?, ?, ?, ?, ?)
+        INSERT INTO match_detail (
+            date, player1, player2, score1, score2, balls_json, rule, shop
+        ) VALUES (
+            CURDATE(), ?, ?, ?, ?, ?, ?, ?
+        )
     ");
 
     $stmt->execute([
@@ -38,10 +37,15 @@ try {
         $player2,
         intval($data['score1']),
         intval($data['score2']),
-        json_encode($data['balls'], JSON_UNESCAPED_UNICODE)
+        json_encode($data['balls'], JSON_UNESCAPED_UNICODE),
+        $rule,
+        $shop
     ]);
 
     echo json_encode(['status' => 'success', 'message' => '登録が完了しました']);
-} catch (Exception $e) {
-    echo json_encode(['status' => 'error', 'message' => 'DBエラー: ' . $e->getMessage()]);
+} catch (PDOException $e) {
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'DBエラー: ' . $e->getMessage()
+    ]);
 }

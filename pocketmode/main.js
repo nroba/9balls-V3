@@ -2,6 +2,8 @@ const grid = document.getElementById("ballGrid");
 const popup = document.getElementById("popup");
 const resetBtn = document.getElementById("resetBtn");
 const registBtn = document.getElementById("registBtn");
+const ruleSelect = document.getElementById("ruleSelect");
+const actionBox = document.getElementById("postRegistActions");
 
 let score1 = 0;
 let score2 = 0;
@@ -51,22 +53,25 @@ function updateMultiplierLabel(num) {
 function recalculateScores() {
   score1 = 0;
   score2 = 0;
+  const rule = ruleSelect.value;
+
   for (let j = 1; j <= 9; j++) {
     const state = ballState[j];
     if (state.swiped && state.assigned) {
-      const base = j === 9 ? 2 : 1;
-      const point = base * state.multiplier;
+      let point = 0;
+      if (rule === "A") {
+        if (j === 9) point = 2;
+        else if (j % 2 === 1) point = 1;
+        else point = 0;
+        point *= state.multiplier;
+      } else if (rule === "B") {
+        point = j === 9 ? 2 : 1;
+      }
       if (state.assigned === 1) score1 += point;
       if (state.assigned === 2) score2 += point;
     }
   }
   updateScoreDisplay();
-}
-
-function animateClick(button) {
-  button.classList.remove("clicked");
-  void button.offsetWidth;
-  button.classList.add("clicked");
 }
 
 function resetAll() {
@@ -83,6 +88,20 @@ function resetAll() {
     state.multiplier = 1;
     updateMultiplierLabel(i);
   }
+}
+
+function updateLabels() {
+  document.getElementById("label1").textContent = document.getElementById("player1").value || "Player 1";
+  document.getElementById("label2").textContent = document.getElementById("player2").value || "Player 2";
+}
+
+function attachPlayerChangeListeners() {
+  document.getElementById("player1").addEventListener("change", updateLabels);
+  document.getElementById("player2").addEventListener("change", updateLabels);
+}
+
+function hideActions() {
+  actionBox.style.display = "none";
 }
 
 for (let i = 1; i <= 9; i++) {
@@ -138,10 +157,7 @@ for (let i = 1; i <= 9; i++) {
       ballState[i].swiped = true;
       playSoundOverlap("sounds/swipe.mp3");
     } else {
-      if (
-        (prevAssigned === 1 && deltaX > 30) ||
-        (prevAssigned === 2 && deltaX < -30)
-      ) {
+      if ((prevAssigned === 1 && deltaX > 30) || (prevAssigned === 2 && deltaX < -30)) {
         ballState[i].assigned = null;
         ballState[i].swiped = false;
         wrapperEl.classList.remove("roll-left", "roll-right");
@@ -149,7 +165,6 @@ for (let i = 1; i <= 9; i++) {
         playSoundOverlap("sounds/cancel.mp3");
       }
     }
-
     recalculateScores();
   };
 
@@ -173,22 +188,21 @@ for (let i = 1; i <= 9; i++) {
 }
 
 resetBtn.addEventListener("click", () => {
-  animateClick(resetBtn);
   resetAll();
+  hideActions();
 });
 
 registBtn.addEventListener("click", () => {
-  animateClick(registBtn);
-
   const payload = {
     score1,
     score2,
     balls: Object.fromEntries(
-      Object.entries(ballState).map(([k, v]) => [
-        k,
-        { assigned: v.assigned, multiplier: v.multiplier }
-      ])
-    )
+      Object.entries(ballState).map(([k, v]) => [k, { assigned: v.assigned, multiplier: v.multiplier }])
+    ),
+    rule: document.getElementById("ruleSelect").value,
+    shop: document.getElementById("shop").value,
+    player1: document.getElementById("player1").value,
+    player2: document.getElementById("player2").value
   };
 
   fetch("submit_v2.php", {
@@ -199,13 +213,28 @@ registBtn.addEventListener("click", () => {
     .then((res) => res.json())
     .then((data) => {
       showPopup(data.message || "登録しました！");
-      resetAll(); // ← 登録成功後に初期化
+      resetAll();
+      actionBox.style.display = "flex";
     })
     .catch((err) => {
       console.error("送信エラー", err);
       showPopup("送信に失敗しました");
     });
 });
+
+fetch("fetch_master.php")
+  .then(res => res.json())
+  .then(data => {
+    for (const shop of data.shops) {
+      document.getElementById("shop").innerHTML += `<option value="${shop}">${shop}</option>`;
+    }
+    for (const user of data.users) {
+      document.getElementById("player1").innerHTML += `<option value="${user}">${user}</option>`;
+      document.getElementById("player2").innerHTML += `<option value="${user}">${user}</option>`;
+    }
+    attachPlayerChangeListeners();
+    updateLabels();
+  });
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js')
