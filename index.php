@@ -9,7 +9,6 @@
 </head>
 <body class="bg-light">
   <div class="container py-5">
-    <h1 class="text-center mb-4">9Balls_V3</h1>
 
     <div class="card shadow">
       <div class="card-header bg-primary text-white">日別まとめ記録（V1形式）</div>
