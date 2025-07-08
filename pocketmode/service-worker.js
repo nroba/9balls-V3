@@ -1,4 +1,4 @@
-const CACHE_NAME = "billiard-cache-v2_02"; 
+const CACHE_NAME = "billiard-cache-v2_03"; 
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches.open("billiard-cache").then((cache) =>
@@ -6,7 +6,7 @@ self.addEventListener("install", (e) => {
         "./",
         "./index.html",
         "./main.js",
-        "./style.css",
+        "./pocketmode.css",
         "./manifest.json",
         "./images/ball1.png",
         "./images/ball2.png",
