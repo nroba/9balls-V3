@@ -1,0 +1,136 @@
+@font-face {
+  font-family: 'TanukiMagic';
+  src: url('/fonts/TanukiMagic.ttf') format('truetype');
+  font-display: swap;
+}
+
+body {
+  font-family: 'TanukiMagic', sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+}
+
+h1 {
+  margin-top: 1rem;
+  font-size: 1.8rem;
+}
+
+.scoreboard {
+  display: flex;
+  justify-content: space-around;
+  background: #e0e0e0;
+  padding: 1em;
+  font-size: 1.2em;
+}
+
+.ball-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 120px);
+  grid-auto-rows: 100px;
+  column-gap: 50px;
+  row-gap: 10px;
+  justify-content: center;
+  margin-top: 1em;
+}
+
+.ball-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  overflow: visible;
+  transition: transform 0.6s ease, opacity 0.6s ease;
+  opacity: 0.5;
+}
+
+.ball-wrapper.roll-left {
+  transform: translateX(-60px) rotate(-360deg);
+}
+
+.ball-wrapper.roll-right {
+  transform: translateX(60px) rotate(360deg);
+}
+
+.ball {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  touch-action: none;
+}
+
+.ball-multiplier {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 0.8em;
+  font-weight: bold;
+  display: none;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@keyframes bounce {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.4); }
+  60%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+.bounce {
+  animation: bounce 0.4s ease;
+}
+
+/* registBtn bounce animation */
+@keyframes bounceRegist {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.3); }
+  60%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+#registBtn {
+  width: 200px;
+  height: 150px;
+  transition: transform 0.2s ease;
+}
+
+#registBtn.clicked {
+  animation: bounceRegist 0.5s ease;
+}
+
+/* ボタン横並び */
+.button-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  object-fit: contain;
+}
+
+.icon-button {
+  height: 100px;
+  width: 130px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.popup {
+  font-family: 'TanukiMagic', sans-serif;
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 1em 2em;
+  border-radius: 10px;
+  font-size: 1.4em;
+  display: none;
+  z-index: 1000;
+}
