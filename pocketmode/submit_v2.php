@@ -8,10 +8,16 @@ $raw = file_get_contents("php://input");
 $data = json_decode($raw, true);
 
 // 必須項目チェック
-if (!isset($data['score1'], $data['score2'], $data['balls'], $data['rule'], $data['shop'], $data['player1'], $data['player2'])) {
+if (!isset($data['score1'], $data['score2'], $data['rule'], $data['shop'], $data['player1'], $data['player2'])) {
     echo json_encode(['status' => 'error', 'message' => '必要な情報が不足しています']);
     exit;
 }
+
+// ボール情報のバリデーションとエンコード
+$balls_json = json_encode(
+    isset($data['balls']) && is_array($data['balls']) ? $data['balls'] : [],
+    JSON_UNESCAPED_UNICODE
+);
 
 // 文字数制限チェック
 $rule = mb_substr($data['rule'], 0, 10);
@@ -37,7 +43,7 @@ try {
         $player2,
         intval($data['score1']),
         intval($data['score2']),
-        json_encode($data['balls'], JSON_UNESCAPED_UNICODE),
+        $balls_json,
         $rule,
         $shop
     ]);

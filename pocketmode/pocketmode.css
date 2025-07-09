@@ -134,3 +134,49 @@ h1 {
   display: none;
   z-index: 1000;
 }
+.post-regist-box {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5em;
+  padding: 2em 3em; /* ← 横の余白を広げました */
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 0 12px rgba(0,0,0,0.15);
+  max-width: 95%;
+  margin: 2em auto;
+  text-align: center;
+}
+.post-regist-box p {
+  color: #000;
+  font-size: 1.2em;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1em;
+}
+
+.btn-group-responsive {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  justify-content: center;
+}
+
+.btn-group-responsive .btn {
+  min-width: 180px;
+  font-size: 1.1em;
+}
+
+.btn-group-responsive .btn {
+  min-width: 180px;
+  font-size: 1.1em;
+  font-family: inherit;  /* フォントを統一 */
+}
+
+.settings-panel {
+  padding: 1em;
+  background: #f0f0f0;
+  border-radius: 10px;
+  margin-bottom: 1em;
+}

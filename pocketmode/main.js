@@ -3,7 +3,6 @@ const popup = document.getElementById("popup");
 const resetBtn = document.getElementById("resetBtn");
 const registBtn = document.getElementById("registBtn");
 const ruleSelect = document.getElementById("ruleSelect");
-const actionBox = document.getElementById("postRegistActions");
 
 let score1 = 0;
 let score2 = 0;
@@ -20,6 +19,16 @@ function restartAnimation(el, className) {
   void el.offsetWidth;
   el.classList.add(className);
   el.style.opacity = "1";
+}
+
+
+function toggleSettings() {
+  const settings = document.getElementById("gameSettings");
+  if (settings.style.display === "none") {
+    settings.style.display = "block";
+  } else {
+    settings.style.display = "none";
+  }
 }
 
 function updateScoreDisplay() {
@@ -96,13 +105,100 @@ function updateLabels() {
 }
 
 function attachPlayerChangeListeners() {
-  document.getElementById("player1").addEventListener("change", updateLabels);
-  document.getElementById("player2").addEventListener("change", updateLabels);
+  document.getElementById("player1").addEventListener("change", () => {
+    updateLabels();
+    localStorage.setItem("player1", document.getElementById("player1").value);
+  });
+  document.getElementById("player2").addEventListener("change", () => {
+    updateLabels();
+    localStorage.setItem("player2", document.getElementById("player2").value);
+  });
+  document.getElementById("shop").addEventListener("change", () => {
+    localStorage.setItem("shop", document.getElementById("shop").value);
+  });
 }
 
 function hideActions() {
-  actionBox.style.display = "none";
+  document.getElementById("postRegistActions").style.display = "none";
 }
+
+registBtn.addEventListener("click", () => {
+  const payload = {
+    score1,
+    score2,
+    balls: Object.fromEntries(
+      Object.entries(ballState).map(([k, v]) => [
+        k,
+        { assigned: v.assigned, multiplier: v.multiplier }
+      ])
+    ),
+    rule: document.getElementById("ruleSelect").value,
+    shop: document.getElementById("shop").value,
+    player1: document.getElementById("player1").value,
+    player2: document.getElementById("player2").value
+  };
+  console.log("送信内容", payload);
+
+  fetch("submit_v2.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      showPopup(data.message || "登録しました！");
+      resetAll();
+      document.getElementById("postRegistActions").style.display = "flex";
+    })
+    .catch((err) => {
+      console.error("送信エラー", err);
+      showPopup("送信に失敗しました");
+    });
+});
+
+// マスタ取得＋初期化＋履歴復元
+fetch("fetch_master.php")
+  .then(res => res.json())
+  .then(data => {
+    const shopSel = document.getElementById("shop");
+    const p1Sel = document.getElementById("player1");
+    const p2Sel = document.getElementById("player2");
+
+    data.shops.forEach((shop, index) => {
+      const option = document.createElement("option");
+      option.value = shop;
+      option.textContent = shop;
+      shopSel.appendChild(option);
+    });
+
+    data.users.forEach((user, index) => {
+      const opt1 = document.createElement("option");
+      opt1.value = user.name;
+      opt1.textContent = user.name;
+      if (index === 0) opt1.selected = true;
+      p1Sel.appendChild(opt1);
+
+      const opt2 = document.createElement("option");
+      opt2.value = user.name;
+      opt2.textContent = user.name;
+      if (index === 1) opt2.selected = true;
+      p2Sel.appendChild(opt2);
+    });
+
+    // localStorage から履歴反映
+    if (localStorage.getItem("player1")) {
+      p1Sel.value = localStorage.getItem("player1");
+    }
+    if (localStorage.getItem("player2")) {
+      p2Sel.value = localStorage.getItem("player2");
+    }
+    if (localStorage.getItem("shop")) {
+      shopSel.value = localStorage.getItem("shop");
+    }
+
+    attachPlayerChangeListeners();
+    updateLabels();
+  });
 
 for (let i = 1; i <= 9; i++) {
   const wrapper = document.createElement("div");
@@ -157,7 +253,10 @@ for (let i = 1; i <= 9; i++) {
       ballState[i].swiped = true;
       playSoundOverlap("sounds/swipe.mp3");
     } else {
-      if ((prevAssigned === 1 && deltaX > 30) || (prevAssigned === 2 && deltaX < -30)) {
+      if (
+        (prevAssigned === 1 && deltaX > 30) ||
+        (prevAssigned === 2 && deltaX < -30)
+      ) {
         ballState[i].assigned = null;
         ballState[i].swiped = false;
         wrapperEl.classList.remove("roll-left", "roll-right");
@@ -165,6 +264,7 @@ for (let i = 1; i <= 9; i++) {
         playSoundOverlap("sounds/cancel.mp3");
       }
     }
+
     recalculateScores();
   };
 
@@ -174,14 +274,9 @@ for (let i = 1; i <= 9; i++) {
   wrapper.addEventListener("mouseup", (e) => onEnd(e.clientX));
   wrapper.addEventListener("click", () => {
     if (!ballState[i].swiped) return;
-    if (ballState[i].multiplier === 1) {
-      ballState[i].multiplier = 2;
-      showPopup("サイド（得点×2）");
-    } else {
-      ballState[i].multiplier = 1;
-      showPopup("コーナー（得点×1）");
-    }
+    ballState[i].multiplier = ballState[i].multiplier === 1 ? 2 : 1;
     updateMultiplierLabel(i);
+    showPopup(ballState[i].multiplier === 2 ? "サイド（得点×2）" : "コーナー（得点×1）");
     playSoundOverlap("sounds/side.mp3");
     recalculateScores();
   });
@@ -189,52 +284,7 @@ for (let i = 1; i <= 9; i++) {
 
 resetBtn.addEventListener("click", () => {
   resetAll();
-  hideActions();
 });
-
-registBtn.addEventListener("click", () => {
-  const payload = {
-    score1,
-    score2,
-    balls: Object.fromEntries(
-      Object.entries(ballState).map(([k, v]) => [k, { assigned: v.assigned, multiplier: v.multiplier }])
-    ),
-    rule: document.getElementById("ruleSelect").value,
-    shop: document.getElementById("shop").value,
-    player1: document.getElementById("player1").value,
-    player2: document.getElementById("player2").value
-  };
-
-  fetch("submit_v2.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      showPopup(data.message || "登録しました！");
-      resetAll();
-      actionBox.style.display = "flex";
-    })
-    .catch((err) => {
-      console.error("送信エラー", err);
-      showPopup("送信に失敗しました");
-    });
-});
-
-fetch("fetch_master.php")
-  .then(res => res.json())
-  .then(data => {
-    for (const shop of data.shops) {
-      document.getElementById("shop").innerHTML += `<option value="${shop}">${shop}</option>`;
-    }
-    for (const user of data.users) {
-      document.getElementById("player1").innerHTML += `<option value="${user}">${user}</option>`;
-      document.getElementById("player2").innerHTML += `<option value="${user}">${user}</option>`;
-    }
-    attachPlayerChangeListeners();
-    updateLabels();
-  });
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js')

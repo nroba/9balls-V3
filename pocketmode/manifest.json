@@ -1,7 +1,7 @@
 {
   "name": "ビリヤード記録アプリ",
   "short_name": "ビリヤード",
-  "start_url": "./index.html",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#006400",
@@ -9,6 +9,11 @@
     {
       "src": "images/ball1.png",
       "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/ball1.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]

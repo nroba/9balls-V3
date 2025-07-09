@@ -4,39 +4,50 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="pocketmode.css?v=2025070902">
+  <link rel="stylesheet" href="pocketmode.css?v=20250709e">
   <title>9Balls_V2</title>
 </head>
 <body>
   <h1>Pocketed!</h1>
 
-  <div class="rule-select">
-    <label>ルール選択：</label>
-    <select id="ruleSelect">
-      <option value="A">ルールA（奇数のみ）</option>
-      <option value="B">ルールB（全ボール）</option>
-      <option value="custom">カスタム（準備中）</option>
-    </select>
-  </div>
-
-  <div class="player-select">
-    <label>店舗名：</label>
-    <select id="shop"></select>
-  </div>
-
-  <div class="player-select">
-    <label>プレイヤー1：</label>
-    <select id="player1"></select>
-  </div>
-
-  <div class="player-select">
-    <label>プレイヤー2：</label>
-    <select id="player2"></select>
-  </div>
-
+  <!-- スコア表示 -->
   <div class="scoreboard">
-    <div>Player 1: <span id="score1">0</span></div>
-    <div>Player 2: <span id="score2">0</span></div>
+    <div id="label1">Player 1</div>
+    <div id="score1">0</div>
+    <div id="label2">Player 2</div>
+    <div id="score2">0</div>
+  </div>
+
+  <!-- 設定表示切り替えボタン -->
+  <div class="text-center my-2">
+    <button onclick="toggleSettings()" class="btn btn-outline-secondary">⚙ 設定</button>
+  </div>
+
+  <!-- 設定エリア（初期表示ON） -->
+  <div id="gameSettings" class="settings-panel">
+    <div class="rule-select">
+      <label>ルール選択：</label>
+      <select id="ruleSelect">
+        <option value="A">ルールA（奇数のみ）</option>
+        <option value="B">ルールB（全ボール）</option>
+        <option value="custom">カスタム（準備中）</option>
+      </select>
+    </div>
+
+    <div class="player-select">
+      <label>店舗名：</label>
+      <select id="shop"></select>
+    </div>
+
+    <div class="player-select">
+      <label>プレイヤー1：</label>
+      <select id="player1"></select>
+    </div>
+
+    <div class="player-select">
+      <label>プレイヤー2：</label>
+      <select id="player2"></select>
+    </div>
   </div>
 
   <div class="ball-grid" id="ballGrid"></div>
@@ -46,15 +57,15 @@
   </div>
 
   <div id="popup" class="popup"></div>
-  <div id="postRegistActions" class="popup" style="display:none; flex-direction: column; align-items: center; gap: 1em;">
-  <p>✅ 登録が完了しました！</p>
-  <div style="display: flex; gap: 10px;">
-    <button onclick="resetAll(); hideActions();" class="btn btn-success">次のゲーム</button>
-    <a href="../index.php" class="btn btn-outline-dark">日別まとめ</a>
+
+  <div id="postRegistActions" class="popup post-regist-box" style="display: none;">
+    <p class="text-center mb-3">✅ 登録が完了しました！</p>
+    <div class="btn-group-responsive">
+      <button onclick="resetAll(); hideActions();" class="btn btn-success btn-lg">🎱 次のゲーム</button>
+      <a href="../index.php" class="btn btn-outline-dark btn-lg">📅 日別まとめへ</a>
+    </div>
   </div>
-</div>
 
-
-  <script src="main.js?v=20250709c"></script>
+  <script src="main.js?v=20250709e"></script>
 </body>
 </html>
