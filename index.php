@@ -1,149 +1,34 @@
-<?php
-$pdo = new PDO('mysql:host=mysql31.conoha.ne.jp;dbname=k75zo_9balls;charset=utf8mb4', 'k75zo_9balls', 'nPxjk13@j');
-$shop_list = $pdo->query("SELECT name FROM shop_master ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
-$user_list = $pdo->query("SELECT name FROM user_master ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
-?>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>9Balls_V3 - 日別記録</title>
+  <title>9Balls_V3 - メニュー</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <style>
+    .menu-container {
+      max-width: 600px;
+      margin: 5rem auto;
+      text-align: center;
+    }
+    .menu-container h1 {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+    .menu-container .btn {
+      width: 100%;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+  </style>
 </head>
 <body class="bg-light">
-  <div class="container py-5">
-    <h1 class="text-center mb-4">9Balls_V3a</h1>
+  <div class="menu-container">
+    <h1>🎱 9Balls 対戦管理メニュー</h1>
 
-    <div class="card shadow">
-      <div class="card-header bg-primary text-white">日別まとめ記録（V1形式）</div>
-      <div class="card-body">
-        <form action="submit_v1.php" method="post">
-          <div class="mb-3">
-            <label class="form-label">対戦日</label>
-            <input type="date" name="date" id="date" class="form-control" required>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">ルール</label>
-            <select name="rule" id="rule" class="form-select" required>
-              <option value="A">ルールA（奇数のみ）</option>
-              <option value="B">ルールB（全ボール）</option>
-              <option value="custom">カスタム（準備中）</option>
-            </select>
-          </div>
-
-          <div class="text-end mb-3">
-            <button type="button" class="btn btn-outline-secondary" onclick="fetchPocketSummary()">pocketmodeから取得</button>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">店舗名</label>
-            <input type="text" name="shop" class="form-control" list="shop_list" required>
-            <datalist id="shop_list">
-              <?php foreach ($shop_list as $s): ?>
-                <option value="<?= htmlspecialchars($s) ?>">
-              <?php endforeach; ?>
-            </datalist>
-          </div>
-
-          <div class="row">
-            <div class="col-md-6">
-              <label class="form-label">プレイヤー1名</label>
-              <input type="text" name="player1" class="form-control" list="user_list" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">プレイヤー2名</label>
-              <input type="text" name="player2" class="form-control" list="user_list" required>
-            </div>
-            <datalist id="user_list">
-              <?php foreach ($user_list as $u): ?>
-                <option value="<?= htmlspecialchars($u) ?>">
-              <?php endforeach; ?>
-            </datalist>
-          </div>
-
-          <div class="row mt-3">
-            <div class="col-md-6">
-              <label class="form-label">プレイヤー1 総得点</label>
-              <input type="number" name="total_score1" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">プレイヤー2 総得点</label>
-              <input type="number" name="total_score2" class="form-control" required>
-            </div>
-          </div>
-
-          <div class="row mt-3">
-            <div class="col-md-6">
-              <label class="form-label">プレイヤー1 エース数</label>
-              <input type="number" name="total_ace1" class="form-control" value="0" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">プレイヤー2 エース数</label>
-              <input type="number" name="total_ace2" class="form-control" value="0" required>
-            </div>
-          </div>
-
-          <div class="mt-3">
-            <label class="form-label">総ゲーム数</label>
-            <input type="number" name="total_games" class="form-control" required>
-          </div>
-
-          <div class="mt-3">
-            <label class="form-label">コメント（任意）</label>
-            <textarea name="comment" class="form-control" rows="3"></textarea>
-          </div>
-
-          <div class="d-grid mt-4">
-            <button type="submit" class="btn btn-primary btn-lg">この内容で記録する</button>
-          </div>
-        </form>
-
-        <div class="text-center mt-4">
-          <a href="pocketmode/index.html" class="btn btn-success">▶ Pocketmode（V2）に進む</a>
-        </div>
-        <div class="text-center mt-4">
-          <a href="settings.php" class="btn btn-outline-dark ms-2">⚙ 設定画面へ</a>
-        </div>
-        <div class="text-center mt-4">
-          <a href="match_results/index.php" class="btn btn-outline-dark">📊 サマリ一覧へ</a>
-        </div>
-      </div>
-    </div>
+    <a href="pocketmode/index.html" class="btn btn-success">🎯 Pocketmode（対戦記録）</a>
+    <a href="../daily/daily.php" class="btn btn-primary">📝 日別まとめ登録</a>
+    <a href="match_results/index.php" class="btn btn-outline-info">📊 日別サマリ一覧</a>
+    <a href="settings.php" class="btn btn-outline-dark">⚙ 設定画面</a>
   </div>
-
-  <script>
-    function fetchPocketSummary() {
-      const date = document.getElementById("date").value;
-      const rule = document.getElementById("rule").value;
-      if (!date || !rule) {
-        alert("日付とルールを選択してください");
-        return;
-      }
-
-      fetch("fetch_summary.php?date=" + encodeURIComponent(date) + "&rule=" + encodeURIComponent(rule))
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === "success") {
-            document.querySelector('[name=shop]').value = data.shop; // ← 店舗名の反映を追加
-            document.querySelector('[name=player1]').value = data.player1;
-            document.querySelector('[name=player2]').value = data.player2;
-            document.querySelector('[name=total_score1]').value = data.total_score1;
-            document.querySelector('[name=total_score2]').value = data.total_score2;
-            document.querySelector('[name=total_ace1]').value = data.total_ace1;
-            document.querySelector('[name=total_ace2]').value = data.total_ace2;
-            document.querySelector('[name=total_games]').value = data.total_games;
-          } else {
-            alert(data.message || "該当データが見つかりませんでした");
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          alert("通信エラーが発生しました");
-        });
-    }
-  </script>
 </body>
 </html>

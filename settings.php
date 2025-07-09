@@ -1,6 +1,6 @@
 <?php
 // settings.php
-$pdo = new PDO('mysql:host=mysql31.conoha.ne.jp;dbname=k75zo_9balls;charset=utf8mb4', 'k75zo_9balls', 'nPxjk13@j');
+$pdo = require_once __DIR__ . '/sys/db_connect.php';
 
 // 登録処理
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -76,7 +76,7 @@ $shops = $pdo->query("SELECT name FROM shop_master ORDER BY name")->fetchAll(PDO
     </div>
 
     <div class="text-center mt-5">
-      <a href="index.php" class="btn btn-outline-primary">← 日別まとめに戻る</a>
+      <a href="../daily/daily.php" class="btn btn-outline-primary">← 日別まとめに戻る</a>
     </div>
   </div>
 </body>

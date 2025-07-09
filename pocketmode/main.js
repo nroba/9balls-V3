@@ -1,3 +1,5 @@
+// /pocketmode/main.js
+
 const grid = document.getElementById("ballGrid");
 const popup = document.getElementById("popup");
 const resetBtn = document.getElementById("resetBtn");
@@ -21,14 +23,9 @@ function restartAnimation(el, className) {
   el.style.opacity = "1";
 }
 
-
 function toggleSettings() {
   const settings = document.getElementById("gameSettings");
-  if (settings.style.display === "none") {
-    settings.style.display = "block";
-  } else {
-    settings.style.display = "none";
-  }
+  settings.style.display = settings.style.display === "none" ? "block" : "none";
 }
 
 function updateScoreDisplay() {
@@ -71,7 +68,6 @@ function recalculateScores() {
       if (rule === "A") {
         if (j === 9) point = 2;
         else if (j % 2 === 1) point = 1;
-        else point = 0;
         point *= state.multiplier;
       } else if (rule === "B") {
         point = j === 9 ? 2 : 1;
@@ -156,15 +152,15 @@ registBtn.addEventListener("click", () => {
     });
 });
 
-// マスタ取得＋初期化＋履歴復元
-fetch("fetch_master.php")
+// 初期データ読み込み
+fetch("../api/fetch_master.php")
   .then(res => res.json())
   .then(data => {
     const shopSel = document.getElementById("shop");
     const p1Sel = document.getElementById("player1");
     const p2Sel = document.getElementById("player2");
 
-    data.shops.forEach((shop, index) => {
+    data.shops.forEach((shop) => {
       const option = document.createElement("option");
       option.value = shop;
       option.textContent = shop;
@@ -185,7 +181,7 @@ fetch("fetch_master.php")
       p2Sel.appendChild(opt2);
     });
 
-    // localStorage から履歴反映
+    // localStorage から履歴復元
     if (localStorage.getItem("player1")) {
       p1Sel.value = localStorage.getItem("player1");
     }
@@ -200,6 +196,7 @@ fetch("fetch_master.php")
     updateLabels();
   });
 
+// ボールUI生成
 for (let i = 1; i <= 9; i++) {
   const wrapper = document.createElement("div");
   wrapper.classList.add("ball-wrapper");

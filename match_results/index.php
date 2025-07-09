@@ -24,8 +24,8 @@
     <h1 class="text-center mb-4">📊 日別サマリ一覧</h1>
 
     <div class="mb-4 d-flex justify-content-end gap-2">
-      <a href="../index.php" class="btn btn-secondary">＋ 新規登録へ</a>
-      <a href="../index.php" class="btn btn-outline-primary">📅 登録画面に戻る</a>
+      <a href="../" class="btn btn-secondary">＋ 新規登録へ</a>
+      <a href="../daily/daily.php" class="btn btn-outline-primary">📅 登録画面に戻る</a>
       <button class="btn btn-outline-success ms-auto" id="exportCsv">📄 CSVダウンロード</button>
     </div>
 

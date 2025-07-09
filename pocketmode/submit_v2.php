@@ -1,57 +1,48 @@
 <?php
-// submit_v2.php
-
+// /pocketmode/submit_v2.php
+// JavaScriptから送信された対戦データ（ルール、プレイヤー、ボールごとの結果など）を match_detail テーブルに登録
 header('Content-Type: application/json');
 
-// JSONデータ受け取り
-$raw = file_get_contents("php://input");
-$data = json_decode($raw, true);
-
-// 必須項目チェック
-if (!isset($data['score1'], $data['score2'], $data['rule'], $data['shop'], $data['player1'], $data['player2'])) {
-    echo json_encode(['status' => 'error', 'message' => '必要な情報が不足しています']);
-    exit;
-}
-
-// ボール情報のバリデーションとエンコード
-$balls_json = json_encode(
-    isset($data['balls']) && is_array($data['balls']) ? $data['balls'] : [],
-    JSON_UNESCAPED_UNICODE
-);
-
-// 文字数制限チェック
-$rule = mb_substr($data['rule'], 0, 10);
-$shop = mb_substr($data['shop'], 0, 100);
-$player1 = mb_substr($data['player1'], 0, 100);
-$player2 = mb_substr($data['player2'], 0, 100);
+require_once __DIR__ . '/../sys/db_connect.php';
 
 try {
-    $pdo = new PDO('mysql:host=mysql31.conoha.ne.jp;dbname=k75zo_9balls;charset=utf8mb4', 'k75zo_9balls', 'nPxjk13@j', [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
+    $data = json_decode(file_get_contents("php://input"), true);
 
-    $stmt = $pdo->prepare("
-        INSERT INTO match_detail (
-            date, player1, player2, score1, score2, balls_json, rule, shop
-        ) VALUES (
-            CURDATE(), ?, ?, ?, ?, ?, ?, ?
-        )
-    ");
+    if (!$data) {
+        throw new Exception("JSONデータの読み取りに失敗しました");
+    }
 
-    $stmt->execute([
-        $player1,
-        $player2,
-        intval($data['score1']),
-        intval($data['score2']),
-        $balls_json,
-        $rule,
-        $shop
-    ]);
+    $stmt = $pdo->prepare("INSERT INTO match_detail (
+        date, rule, shop, player1, player2,
+        ball_number, assigned, multiplier,
+        score1, score2, ace1, ace2, created_at
+    ) VALUES (
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()
+    )");
 
-    echo json_encode(['status' => 'success', 'message' => '登録が完了しました']);
-} catch (PDOException $e) {
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'DBエラー: ' . $e->getMessage()
-    ]);
+    $date = date('Y-m-d');
+    $rule = $data['rule'] ?? '';
+    $shop = $data['shop'] ?? '';
+    $player1 = $data['player1'] ?? '';
+    $player2 = $data['player2'] ?? '';
+    $score1 = intval($data['score1'] ?? 0);
+    $score2 = intval($data['score2'] ?? 0);
+
+    foreach ($data['balls'] as $num => $info) {
+        $ball_number = intval($num);
+        $assigned = $info['assigned'] ?? null;
+        $multiplier = $info['multiplier'] ?? 1;
+
+        $stmt->execute([
+            $date, $rule, $shop, $player1, $player2,
+            $ball_number, $assigned, $multiplier,
+            $score1, $score2, 0, 0
+        ]);
+    }
+
+    echo json_encode(['status' => 'success', 'message' => '登録しました']);
+
+} catch (Exception $e) {
+    error_log("submit_v2.php error: " . $e->getMessage());
+    echo json_encode(['status' => 'error', 'message' => '送信エラー: ' . $e->getMessage()]);
 }

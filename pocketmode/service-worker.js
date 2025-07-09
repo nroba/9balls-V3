@@ -1,4 +1,4 @@
-const CACHE_NAME = "billiard-cache-v2_03"; 
+const CACHE_NAME = "billiard-cache-v3"; 
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches.open("billiard-cache").then((cache) =>

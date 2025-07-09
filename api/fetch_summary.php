@@ -1,6 +1,9 @@
 <?php
-// fetch_summary.php
+// /api/fetch_summary.php
+// /daily/daily.php で「Pocketmodeから取得」ボタンを押したときに利用されます。
 header('Content-Type: application/json');
+
+require_once __DIR__ . '/../sys/db_connect.php';
 
 $date = $_GET['date'] ?? '';
 $rule = $_GET['rule'] ?? '';
@@ -11,13 +14,6 @@ if (!$date || !$rule) {
 }
 
 try {
-    $pdo = new PDO(
-        'mysql:host=mysql31.conoha.ne.jp;dbname=k75zo_9balls;charset=utf8mb4',
-        'k75zo_9balls',
-        'nPxjk13@j',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
-
     $stmt = $pdo->prepare("SELECT * FROM match_detail WHERE date = ? AND rule = ?");
     $stmt->execute([$date, $rule]);
     $matches = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -54,6 +50,8 @@ try {
         'total_ace2' => $ace2,
         'total_games' => $games
     ]);
+
 } catch (PDOException $e) {
+    error_log("fetch_summary.php error: " . $e->getMessage());
     echo json_encode(['status' => 'error', 'message' => 'DBエラー: ' . $e->getMessage()]);
 }
