@@ -11,9 +11,12 @@ if (!$date || !$rule) {
 }
 
 try {
-    $pdo = new PDO('mysql:host=mysql31.conoha.ne.jp;dbname=k75zo_9balls;charset=utf8mb4', 'k75zo_9balls', 'nPxjk13@j', [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
+    $pdo = new PDO(
+        'mysql:host=mysql31.conoha.ne.jp;dbname=k75zo_9balls;charset=utf8mb4',
+        'k75zo_9balls',
+        'nPxjk13@j',
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    );
 
     $stmt = $pdo->prepare("SELECT * FROM match_detail WHERE date = ? AND rule = ?");
     $stmt->execute([$date, $rule]);
@@ -24,6 +27,7 @@ try {
         exit;
     }
 
+    $shop = $matches[0]['shop'] ?? '';
     $player1 = $matches[0]['player1'];
     $player2 = $matches[0]['player2'];
     $score1 = 0;
@@ -41,6 +45,7 @@ try {
 
     echo json_encode([
         'status' => 'success',
+        'shop' => $shop,
         'player1' => $player1,
         'player2' => $player2,
         'total_score1' => $score1,

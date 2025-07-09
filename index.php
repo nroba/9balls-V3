@@ -14,7 +14,7 @@ $user_list = $pdo->query("SELECT name FROM user_master ORDER BY name")->fetchAll
 </head>
 <body class="bg-light">
   <div class="container py-5">
-    <h1 class="text-center mb-4">9Balls_V3</h1>
+    <h1 class="text-center mb-4">9Balls_V3a</h1>
 
     <div class="card shadow">
       <div class="card-header bg-primary text-white">日別まとめ記録（V1形式）</div>
@@ -103,7 +103,12 @@ $user_list = $pdo->query("SELECT name FROM user_master ORDER BY name")->fetchAll
 
         <div class="text-center mt-4">
           <a href="pocketmode/index.html" class="btn btn-success">▶ Pocketmode（V2）に進む</a>
+        </div>
+        <div class="text-center mt-4">
           <a href="settings.php" class="btn btn-outline-dark ms-2">⚙ 設定画面へ</a>
+        </div>
+        <div class="text-center mt-4">
+          <a href="match_results/index.php" class="btn btn-outline-dark">📊 サマリ一覧へ</a>
         </div>
       </div>
     </div>
@@ -122,6 +127,7 @@ $user_list = $pdo->query("SELECT name FROM user_master ORDER BY name")->fetchAll
         .then(res => res.json())
         .then(data => {
           if (data.status === "success") {
+            document.querySelector('[name=shop]').value = data.shop; // ← 店舗名の反映を追加
             document.querySelector('[name=player1]').value = data.player1;
             document.querySelector('[name=player2]').value = data.player2;
             document.querySelector('[name=total_score1]').value = data.total_score1;
