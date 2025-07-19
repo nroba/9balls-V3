@@ -119,7 +119,9 @@ function hideActions() {
 }
 
 registBtn.addEventListener("click", () => {
+  const gameId = crypto.randomUUID();
   const payload = {
+    game_id: gameId,
     score1,
     score2,
     balls: Object.fromEntries(
