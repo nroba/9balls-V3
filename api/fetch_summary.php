@@ -1,57 +1,16 @@
 <?php
-// /api/fetch_summary.php
-// /daily/daily.php で「Pocketmodeから取得」ボタンを押したときに利用されます。
+// /api/fetch_summary.php（本番用）
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../sys/db_connect.php';
 
-$date = $_GET['date'] ?? '';
-$rule = $_GET['rule'] ?? '';
-
-if (!$date || !$rule) {
-    echo json_encode(['status' => 'error', 'message' => '日付またはルールが指定されていません']);
-    exit;
-}
-
 try {
-    $stmt = $pdo->prepare("SELECT * FROM match_detail WHERE date = ? AND rule = ?");
-    $stmt->execute([$date, $rule]);
-    $matches = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->query("SELECT * FROM match_summary ORDER BY date DESC");
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if (count($matches) === 0) {
-        echo json_encode(['status' => 'error', 'message' => '該当するデータがありません']);
-        exit;
-    }
-
-    $shop = $matches[0]['shop'] ?? '';
-    $player1 = $matches[0]['player1'];
-    $player2 = $matches[0]['player2'];
-    $score1 = 0;
-    $score2 = 0;
-    $ace1 = 0;
-    $ace2 = 0;
-    $games = count($matches);
-
-    foreach ($matches as $m) {
-        $score1 += intval($m['score1']);
-        $score2 += intval($m['score2']);
-        $ace1 += intval($m['ace1'] ?? 0);
-        $ace2 += intval($m['ace2'] ?? 0);
-    }
-
-    echo json_encode([
-        'status' => 'success',
-        'shop' => $shop,
-        'player1' => $player1,
-        'player2' => $player2,
-        'total_score1' => $score1,
-        'total_score2' => $score2,
-        'total_ace1' => $ace1,
-        'total_ace2' => $ace2,
-        'total_games' => $games
-    ]);
+    echo json_encode($results);
 
 } catch (PDOException $e) {
     error_log("fetch_summary.php error: " . $e->getMessage());
-    echo json_encode(['status' => 'error', 'message' => 'DBエラー: ' . $e->getMessage()]);
+    echo json_encode(['error' => 'DBエラー: ' . $e->getMessage()]);
 }

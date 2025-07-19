@@ -1,82 +1,84 @@
 <?php
-// settings.php
-$pdo = require_once __DIR__ . '/sys/db_connect.php';
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+require_once __DIR__ . '/sys/db_connect.php';
 
-// 登録処理
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $type = $_POST['type'] ?? '';
-    $name = trim($_POST['name'] ?? '');
-
-    if ($name && in_array($type, ['user', 'shop'], true)) {
-        $table = $type === 'user' ? 'user_master' : 'shop_master';
-        $stmt = $pdo->prepare("INSERT IGNORE INTO {$table} (name) VALUES (?)");
-        $stmt->execute([$name]);
-    }
-    header("Location: settings.php");
-    exit;
+try {
+  $shop_list = $pdo->query("SELECT * FROM shop_master ORDER BY name")->fetchAll(PDO::FETCH_ASSOC);
+  $user_list = $pdo->query("SELECT * FROM user_master ORDER BY name")->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+  die("データベースエラー: " . htmlspecialchars($e->getMessage()));
 }
-
-// データ取得
-$users = $pdo->query("SELECT name FROM user_master ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
-$shops = $pdo->query("SELECT name FROM shop_master ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
 ?>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>設定画面 - 9Balls_V3</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>マスタ設定 - 9Balls</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f0f2f5;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+  </style>
 </head>
-<body class="bg-light">
-  <div class="container py-5">
-    <h1 class="text-center mb-4">設定画面</h1>
+<body>
+  <div class="container">
+    <h1>⚙ マスタ設定</h1>
 
-    <div class="row g-4">
-      <!-- ユーザー名マスタ -->
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header bg-info text-white">ユーザー名マスタ登録</div>
-          <div class="card-body">
-            <form method="post">
-              <input type="hidden" name="type" value="user">
-              <div class="input-group">
-                <input type="text" name="name" class="form-control" placeholder="新しいユーザー名" required>
-                <button class="btn btn-info" type="submit">追加</button>
-              </div>
+    <div class="section">
+      <h4>🏪 店舗マスタ</h4>
+      <form method="post" action="save_shop.php" class="d-flex gap-2">
+        <input type="text" name="name" class="form-control" placeholder="新規店舗名" required>
+        <button type="submit" class="btn btn-primary">追加</button>
+      </form>
+      <ul class="list-group mt-3">
+        <?php foreach ($shop_list as $shop): ?>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <?= htmlspecialchars($shop['name']) ?>
+            <form method="post" action="delete_shop.php" class="m-0">
+              <input type="hidden" name="id" value="<?= $shop['id'] ?>">
+              <button type="submit" class="btn btn-sm btn-outline-danger">削除</button>
             </form>
-            <ul class="list-group list-group-flush mt-3">
-              <?php foreach ($users as $u): ?>
-              <li class="list-group-item"><?= htmlspecialchars($u) ?></li>
-              <?php endforeach; ?>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- 店舗名マスタ -->
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header bg-warning">店舗名マスタ登録</div>
-          <div class="card-body">
-            <form method="post">
-              <input type="hidden" name="type" value="shop">
-              <div class="input-group">
-                <input type="text" name="name" class="form-control" placeholder="新しい店舗名" required>
-                <button class="btn btn-warning" type="submit">追加</button>
-              </div>
-            </form>
-            <ul class="list-group list-group-flush mt-3">
-              <?php foreach ($shops as $s): ?>
-              <li class="list-group-item"><?= htmlspecialchars($s) ?></li>
-              <?php endforeach; ?>
-            </ul>
-          </div>
-        </div>
-      </div>
+          </li>
+        <?php endforeach; ?>
+      </ul>
     </div>
 
-    <div class="text-center mt-5">
-      <a href="../daily/daily.php" class="btn btn-outline-primary">← 日別まとめに戻る</a>
+    <div class="section">
+      <h4>👤 ユーザーマスタ</h4>
+      <form method="post" action="save_user.php" class="d-flex gap-2">
+        <input type="text" name="name" class="form-control" placeholder="新規ユーザー名" required>
+        <button type="submit" class="btn btn-primary">追加</button>
+      </form>
+      <ul class="list-group mt-3">
+        <?php foreach ($user_list as $user): ?>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <?= htmlspecialchars($user['name']) ?>
+            <form method="post" action="delete_user.php" class="m-0">
+              <input type="hidden" name="id" value="<?= $user['id'] ?>">
+              <button type="submit" class="btn btn-sm btn-outline-danger">削除</button>
+            </form>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+    </div>
+
+    <div class="text-center">
+      <a href="index.php" class="btn btn-outline-secondary">🏠 トップに戻る</a>
     </div>
   </div>
 </body>

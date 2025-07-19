@@ -203,7 +203,7 @@ for (let i = 1; i <= 9; i++) {
   wrapper.style.opacity = "0.5";
 
   const img = document.createElement("img");
-  img.src = `images/ball${i}.png`;
+  img.src = `/images/ball${i}.png`; 
   img.classList.add("ball");
   img.dataset.number = i;
 
